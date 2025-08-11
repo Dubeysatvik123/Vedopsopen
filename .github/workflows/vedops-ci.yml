@@ -1,0 +1,50 @@
+name: VedOps CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  vedops-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Setup VedOps
+      run: |
+        chmod +x scripts/setup.sh
+        ./scripts/setup.sh
+    
+    - name: Run VedOps Pipeline
+      run: |
+        python run.py --config config/pipeline_config.json
+    
+    - name: Upload Pipeline Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: vedops-results
+        path: |
+          pipeline_results.json
+          reports/
+          artifacts/
+    
+    - name: Notify on Success
+      if: success()
+      run: echo "✅ VedOps pipeline completed successfully"
+    
+    - name: Notify on Failure
+      if: failure()
+      run: echo "❌ VedOps pipeline failed"

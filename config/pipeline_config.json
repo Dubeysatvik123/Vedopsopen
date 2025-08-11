@@ -1,0 +1,39 @@
+{
+  "project": {
+    "type": "git",
+    "source": "https://github.com/example/sample-app.git",
+    "name": "sample-app",
+    "branch": "main"
+  },
+  "infrastructure": {
+    "deployment_target": "Local (Kubernetes)",
+    "expected_traffic": "Medium (1K-10K requests/day)",
+    "agent_modes": {
+      "varuna": true,
+      "agni": true,
+      "yama": true,
+      "vayu": true,
+      "hanuman": true,
+      "krishna": true,
+      "observability": true,
+      "optimization": true
+    }
+  },
+  "security": {
+    "compliance_standards": ["OWASP", "CIS"],
+    "vulnerability_threshold": "medium",
+    "auto_patch": true
+  },
+  "deployment": {
+    "environment": "production",
+    "replicas": 3,
+    "auto_scaling": true,
+    "health_checks": true
+  },
+  "monitoring": {
+    "metrics_enabled": true,
+    "logging_enabled": true,
+    "alerting_enabled": true,
+    "retention_days": 30
+  }
+}

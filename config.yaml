@@ -1,0 +1,75 @@
+# VedOps Platform Configuration
+
+execution_mode: local  # local, hybrid, cloud
+
+# Local AI Models (via Ollama)
+local_models:
+  default: llama2
+  available:
+    - llama2
+    - codellama
+    - mistral
+    - neural-chat
+
+# Cloud Provider Settings
+cloud_providers:
+  aws:
+    enabled: false
+    region: us-east-1
+    api_key: ""
+  azure:
+    enabled: false
+    region: eastus
+    api_key: ""
+  gcp:
+    enabled: false
+    region: us-central1
+    api_key: ""
+
+# Security Configuration
+security:
+  auto_patch: true
+  strict_compliance: false
+  audit_logging: true
+  vulnerability_threshold: medium
+
+# Agent Configuration
+agents:
+  varuna:
+    enabled: true
+    timeout: 300
+    max_retries: 3
+  agni:
+    enabled: true
+    timeout: 600
+    max_retries: 2
+  yama:
+    enabled: true
+    timeout: 900
+    max_retries: 2
+  vayu:
+    enabled: true
+    timeout: 1200
+    max_retries: 1
+  hanuman:
+    enabled: true
+    timeout: 1800
+    max_retries: 2
+  krishna:
+    enabled: true
+    timeout: 300
+    max_retries: 1
+
+# Infrastructure Settings
+infrastructure:
+  local_k8s: minikube
+  docker_registry: local
+  artifact_storage: ./artifacts
+  report_storage: ./reports
+
+# Monitoring & Observability
+monitoring:
+  prometheus: true
+  grafana: true
+  loki: false
+  jaeger: false

@@ -1,0 +1,9 @@
+{
+  "provider": "Custom API",
+  "model": "llama-3.1-70b-versatile",
+  "api_key": "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",
+  "timestamp": "2025-08-11T21:52:16.731382",
+  "endpoint": "https://api.groq.com/openai/v1/models",
+  "saved_at": "2025-08-11T21:52:16.731453",
+  "version": "1.0"
+}
