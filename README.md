@@ -604,6 +604,5 @@ VedOps is built on the shoulders of giants. Special thanks to:
 
 ⭐ Star us on GitHub • 🐦 Follow updates • 📧 Stay connected
 
-[Website](https://vedops.dev) • [Documentation](https://docs.vedops.dev) • [Community](https://community.vedops.dev)
 
 </div>
