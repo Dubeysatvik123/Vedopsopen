@@ -63,32 +63,21 @@ class LLMConfigManager:
             return None
     
     def validate_config(self, config: Dict[str, Any]) -> bool:
-        """Validate LLM configuration"""
+        """Validate LLM configuration (no API key persisted)"""
         required_fields = ['provider', 'model']
-        
         for field in required_fields:
             if field not in config:
                 logger.error(f"Missing required field: {field}")
                 return False
-        
+
         # Provider-specific validation
         provider = config['provider']
 
-        api_key_required = {
-            'OpenAI', 'Anthropic', 'Google', 'Groq', 'Mistral', 'Cohere',
-            'Together AI', 'OpenRouter', 'Perplexity', 'Fireworks AI', 'xAI (Grok)',
-            'DeepSeek'
-        }
-
-        if provider in api_key_required and not config.get('api_key'):
-            logger.error(f"{provider} requires an API key")
-            return False
-
-        endpoint_required = {'Azure OpenAI', 'Custom API'}
-        if provider in endpoint_required and not config.get('endpoint'):
+        # For Azure/Custom, endpoint is required
+        if provider in {'Azure OpenAI', 'Custom API'} and not config.get('endpoint'):
             logger.error(f"{provider} requires an endpoint")
             return False
-        
+
         return True
     
     def get_llm_client(self, config: Optional[Dict[str, Any]] = None):
@@ -102,11 +91,18 @@ class LLMConfigManager:
         provider = config['provider']
         
         try:
+            # Resolve API key from config or environment (we avoid persisting secrets)
+            def resolve_api_key(*env_names: str) -> Optional[str]:
+                for name in env_names:
+                    if name in os.environ and os.environ[name]:
+                        return os.environ[name]
+                return config.get('api_key')  # fallback if passed programmatically
+
             if provider == "OpenAI":
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('OPENAI_API_KEY'),
                     temperature=0.1
                 )
             
@@ -114,7 +110,7 @@ class LLMConfigManager:
                 from langchain_anthropic import ChatAnthropic
                 return ChatAnthropic(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('ANTHROPIC_API_KEY'),
                     temperature=0.1
                 )
             
@@ -122,7 +118,7 @@ class LLMConfigManager:
                 from langchain_google_genai import ChatGoogleGenerativeAI
                 return ChatGoogleGenerativeAI(
                     model=config['model'],
-                    google_api_key=config['api_key'],
+                    google_api_key=resolve_api_key('GOOGLE_API_KEY'),
                     temperature=0.1
                 )
             
@@ -137,7 +133,7 @@ class LLMConfigManager:
                 from langchain_openai import AzureChatOpenAI
                 return AzureChatOpenAI(
                     deployment_name=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('AZURE_OPENAI_API_KEY', 'AZURE_API_KEY'),
                     azure_endpoint=config['endpoint'],
                     api_version="2024-02-15-preview",
                     temperature=0.1
@@ -148,7 +144,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('GROQ_API_KEY'),
                     base_url=config.get('endpoint', 'https://api.groq.com/openai/v1'),
                     temperature=0.1
                 )
@@ -157,7 +153,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('MISTRAL_API_KEY'),
                     base_url=config.get('endpoint', 'https://api.mistral.ai/v1'),
                     temperature=0.1
                 )
@@ -166,7 +162,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('TOGETHER_API_KEY'),
                     base_url=config.get('endpoint', 'https://api.together.xyz/v1'),
                     temperature=0.1
                 )
@@ -175,7 +171,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('OPENROUTER_API_KEY'),
                     base_url=config.get('endpoint', 'https://openrouter.ai/api/v1'),
                     temperature=0.1
                 )
@@ -184,7 +180,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('PERPLEXITY_API_KEY', 'PPLX_API_KEY'),
                     base_url=config.get('endpoint', 'https://api.perplexity.ai'),
                     temperature=0.1
                 )
@@ -193,7 +189,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('FIREWORKS_API_KEY'),
                     base_url=config.get('endpoint', 'https://api.fireworks.ai/inference/v1'),
                     temperature=0.1
                 )
@@ -202,7 +198,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('XAI_API_KEY'),
                     base_url=config.get('endpoint', 'https://api.x.ai/v1'),
                     temperature=0.1
                 )
@@ -211,7 +207,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('DEEPSEEK_API_KEY'),
                     base_url=config.get('endpoint', 'https://api.deepseek.com'),
                     temperature=0.1
                 )
@@ -220,7 +216,7 @@ class LLMConfigManager:
                 from langchain_openai import ChatOpenAI
                 return ChatOpenAI(
                     model=config['model'],
-                    api_key=config['api_key'],
+                    api_key=resolve_api_key('CUSTOM_API_KEY'),
                     base_url=config['endpoint'],
                     temperature=0.1
                 )

@@ -165,10 +165,10 @@ def main():
 
         # Save configuration
         if st.button("💾 Save LLM Configuration"):
+            # Do not persist API keys in the config file; read from environment at runtime
             config = {
                 "provider": provider,
                 "model": model,
-                "api_key": api_key,
                 "timestamp": datetime.now().isoformat()
             }
             
